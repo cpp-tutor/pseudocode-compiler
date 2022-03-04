@@ -1,0 +1,35 @@
+# NMAKE Makefile for pseudocode-compiler project
+# note: run from within Visual Studio 2019 command prompt
+# "nnake /f Makefile.nmake"
+
+# note: place the following in the same directory as this makefile or specify paths
+Bison = win_bison.exe
+Flex = win_flex.exe --wincompat
+FlexLexer_h = /I.
+
+CPP = cl
+CPPFlags = /nologo /EHsc /std:c++20 /O2 /wd4005 $(FlexLexer_h)
+
+Target = psc.exe
+Objs = Lexer.obj Parser.obj main.obj
+Autogen = Lexer.cpp Parser.hpp Parser.cpp Location.hpp
+
+all: $(Target)
+
+$(Autogen): scanner.l grammar.y
+  $(Bison) grammar.y
+  $(Flex) scanner.l
+
+.cpp.obj:
+  $(CPP) $(CPPFlags) /c $*.cpp
+
+$(Target): $(Autogen) $(Objs)
+  $(CPP) $(CPPFlags) /Fe$(Target) $(Objs)
+
+clean:
+  del $(Target) $(Objs) $(Autogen)
+
+# Static dependencies
+Lexer.obj: SymbolTypes.hpp Tree.hpp Expression.hpp Symbol.hpp Lexer.hpp Parser.hpp
+Parser.obj: SymbolTypes.hpp Tree.hpp Expression.hpp If.hpp While.hpp For.hpp RepeatUntil.hpp InputOutput.hpp Utility.hpp Symbol.hpp Subroutine.hpp Lexer.hpp
+main.obj: SymbolTypes.hpp Tree.hpp Expression.hpp Symbol.hpp Lexer.hpp Parser.hpp

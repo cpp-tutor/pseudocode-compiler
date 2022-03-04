@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en-GB"><!-- https://github.com/cpp-tutor/pseudocode-compiler/ -->
+<head>
+<meta charset="UTF-8">
+<title>Pseudocode to JavaScript Compiler</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="styles.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+<script type="text/javascript" src="base64.js">
+</script>
+<span>
+<div>
+<h2 align="center">Pseudocode to JavaScript Compiler</h2>
+</div>
+<div class="window">
+<form id="input">
+<label for="program_source_id"><h3 align="center">Type your program in here</h3>
+<textarea name="program_source"></textarea>
+</label>
+<div>
+<button type="button" onClick="run()">Run program</button>
+<button type="button" onClick="clear_window()">Clear output</button>
+<input type="text" name="user_input" placeholder="Input1,Input2..." maxlength="128"/>
+</div>
+</form>
+</div>
+<script>
+var user_input;
+function print(line) {
+  document.getElementById("program_output").innerHTML += line + '\n';
+}
+function run() {
+  user_input = 0;
+  let script = document.createElement("script");
+  let query_string = Base64.encode(document.getElementById("input").elements["program_source"].value);
+  script.setAttribute("src", "/cgi-bin/psc?" + query_string);
+  document.body.appendChild(script);
+}
+function clear_window() {
+  document.getElementById("program_output").innerHTML = "";
+}
+function readline() {
+  let input = document.getElementById("input").elements["user_input"].value;
+  var more = input.indexOf(',', user_input);
+  if (more != -1) {
+     let begin = user_input;
+     user_input = more + 1;
+     return input.substring(begin, more);
+  }
+  else {
+     return input.substring(user_input);
+  }
+}
+</script>
+<div class="window">
+<h3 align="center">View the output of your program here</h3>
+<pre id="program_output"></pre>
+</div>
+</span>
+</body>
+</html>

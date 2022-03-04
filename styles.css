@@ -1,0 +1,59 @@
+body {
+  font-family: sans-serif;
+  background-color: rgb(160, 80, 160);
+  color: rgb(0, 0, 0);
+  margin: 4px;
+}
+
+h2 {
+  font-family: sans-serif;
+  color: rgb(225, 225, 225);
+  font-size: 18pt;
+  margin: 2pt;
+}
+
+h3 {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 14pt;
+  margin: 2pt;
+}
+
+pre {
+  font-size: 12pt;
+}
+
+textarea {
+  width: 584px;
+  height: 512px;
+  background-color: rgba(0, 0, 0, 0);
+  border: 8px;
+  padding: 8px;
+  font-size: 12pt;
+  resize: none;
+}
+
+button {
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 3px;
+  background-color: rgb(224, 224, 224);
+}
+
+input {
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 3px;
+  background-color: rgb(255, 255, 255);
+  width: 60%;
+  float: right;
+}
+
+.window {
+  background-color: rgb(224, 160, 224);
+  margin: 4px;
+  padding: 8px;
+  border-radius: 10px;
+  width: 600px;
+  height: 584px;
+  float: left;
+}
