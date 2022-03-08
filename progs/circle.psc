@@ -8,9 +8,9 @@ SUBROUTINE area(radius : Real)
 RETURN PI * radius * radius
 ENDSUBROUTINE
 
-WHILE True
+FOR n <- 1 TO 4
 OUTPUT 'Please enter the radius:'
 r <- STRING_TO_REAL(USERINPUT)
 OUTPUT 'Circumference is: ' + REAL_TO_STRING(circumference(r))
 OUTPUT 'Area is: ' + REAL_TO_STRING(area(r))
-ENDWHILE
+ENDFOR
