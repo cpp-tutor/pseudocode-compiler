@@ -66,7 +66,7 @@ $ sudo apt install apache2  # command for Debian/Ubuntu
 $ sudo a2enmod cgi
 ```
 
-possibly with `sudo a2ensite ...` too. See your distro's documentation.
+possibly with `sudo a2ensite ...` and restarting the `apache2` service too. See your distro's documentation.
 
 Windows needs Internet Information Services (IIS) Manager to be enabled and set up together with a permissions rule for the executable binary, see documentation for your version of Windows (tested under Windows 10). Note that **some editing of `pseudocode.html` is necessary**: `/cgi-bin/psc?` needs to be changed to `./psc.exe?` (note the `.`), assuming that the utility is located in the same directory as the web-page.
 
@@ -85,3 +85,5 @@ Please note that this software is **not** either endorsed or supported by AQA Ex
 Pseudocode Specification as an unrestricted download from the AQA website:
 
 https://filestore.aqa.org.uk/resources/computing/AQA-8525-NG-PC.PDF
+
+Note that the only change from the spec (as far as I am aware) is for `SUBROUTINE` parameters needing to be followed by `: Type` as for `RECORD` fields (but not when the `SUBROUTINE` is called).
