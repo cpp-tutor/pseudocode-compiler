@@ -27,7 +27,13 @@
 </div>
 <script>
 var user_input;
+let max_lines = 28;
 function print(line) {
+  let lines = document.getElementById("program_output").innerHTML.split('\n').length;
+  if (lines > max_lines) {
+    alert('Too many lines of output. Please clear the output window!');
+    throw new Error('Window full');
+  }
   document.getElementById("program_output").innerHTML += line + '\n';
 }
 function run() {
