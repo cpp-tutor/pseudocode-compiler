@@ -1,6 +1,6 @@
 # NMAKE Makefile for pseudocode-compiler project
-# note: run from within Visual Studio 2019 command prompt
-# "nnake /f Makefile.nmake"
+# note: run from within Visual Studio 2019/2022 command prompt
+# "nmake /f Makefile.nmake"
 
 # note: place the following in the same directory as this makefile or specify paths
 Bison = win_bison.exe

@@ -55,28 +55,28 @@ Input options (immediately after `psc` and before any redirections or filenames)
 
 ## Use as a CGI program
 
-The supplied `pseudocode.html` web-page together with `styles.css` and `base64.js` can be used as a front-end to the compiler utility. Under Linux/Apache these files would need to be copied to `/var/www/html/`, or under Windows to `C:\inetpub\wwwroot\`.
+The supplied `pscweb.html` web-page together with `pscweb.css` and `pscweb.js` can be used as a front-end to the compiler utility. Under Linux/Apache these files would need to be copied to `/var/www/html/` or `/srv/http/`, or under Windows to `C:\inetpub\wwwroot\`.
 
-Permissions would need to be given to the utility to run as a CGI program, under Linux/Apache it would need to be copied to `/usr/lib/cgi-bin/`, or under Windows to the same directory as before.
+Permissions would need to be given to the utility to run as a CGI program, under Linux/Apache it would typically need to be copied to `/usr/lib/cgi-bin/` or `/srv/http/cgi-bin/`, or under Windows to the same directory as before.
 
-The minimum setup under Linux is:
+The minimum setup under Debian/Ubuntu is:
 
 ```
-$ sudo apt install apache2  # command for Debian/Ubuntu
+$ sudo apt install apache2
 $ sudo a2enmod cgi
 ```
 
-possibly with `sudo a2ensite ...` and restarting the `apache2` service too. See your distro's documentation.
+(Possibly with `sudo a2ensite ...` and restarting the `apache2` service too.) See your individual distro's documentation for how to install and set up a webserver.
 
-Windows needs Internet Information Services (IIS) Manager to be enabled and set up together with a permissions rule for the executable binary, see documentation for your version of Windows (tested under Windows 10). Note that **some editing of `pseudocode.html` is necessary**: `/cgi-bin/psc?` needs to be changed to `./psc.exe?` (note the `.`), assuming that the utility is located in the same directory as the web-page.
+Windows needs Internet Information Services (IIS) Manager to be enabled and set up together with a permissions rule for the executable binary, see documentation for your version of Windows (tested under Windows 10). Note that **some editing of `pscweb.html` is necessary**: `/cgi-bin/psc?` needs to be changed to `./psc.exe?` (note the `.`), assuming that the utility is located in the same directory as the web-page.
 
-Note that inputs to the running program have to be entered into the text field bottom-left **before** the program is run, being separated by commas. This is the only difference to running the Javascript in a console window.
+Note that inputs to the running program have to be entered into the text field bottom-left **before** the program is run, these being separated by commas. Also the user is prompted to clear the output window when it is full. These are the only significant difference to running the Javascript in a console window.
 
 ## License
 
 This software is released under the highly permissive MIT License. If you do modify or improve parts of this software, especially the web front-end, I hope you would want to share your efforts, but this is not a requirement.
 
-For this software to be useful to school students, setting up the web interface would be of great advantage, as the edit/compile/run cycle using just the console has an associated learning curve.
+For this software to be useful to school students, setting up the web interface would be of great advantage, as the edit/compile/run cycle necessary for using the console has an associated learning curve.
 
 Please note that this software is **not** either endorsed or supported by AQA Exam Board, and also its author is not affiliated to them in any way.
 
@@ -86,4 +86,4 @@ Pseudocode Specification as an unrestricted download from the AQA website:
 
 https://filestore.aqa.org.uk/resources/computing/AQA-8525-NG-PC.PDF
 
-Note that the only change from the spec (as far as I am aware) is for `SUBROUTINE` parameters needing to be followed by `: Type` as for `RECORD` fields (but not when the `SUBROUTINE` is called).
+Note that the only deliberate change from the specification is for `SUBROUTINE` parameters needing to be followed by `: Type` (as for `RECORD` fields), but not where the `SUBROUTINE` is called with arguments.
