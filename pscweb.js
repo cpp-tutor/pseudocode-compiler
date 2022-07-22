@@ -36,9 +36,17 @@ function clear_output() {
     document.getElementById('program_output').innerHTML = '';
 }
 
-function base64enc(rawutf8) {
+function toutf8(str) {
+    var urifmt = '' + encodeURIComponent(str), x = function(s) {
+        return String.fromCharCode(parseInt(s.substring(1), 16));
+    }
+    return urifmt.replace(/%../g, x);
+}
+
+function base64enc(input) {
     let encweb = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=';
-    var enc = '', pos = 0, len = rawutf8.length;
+    var rawutf8 = toutf8(input), enc = '', pos = 0;
+    let len = rawutf8.length;
     while ((len - pos) > 2) {
         enc += encweb[(rawutf8.charCodeAt(pos) >> 2) & 0x3f];
         enc += encweb[((rawutf8.charCodeAt(pos) << 4) | (rawutf8.charCodeAt(pos + 1) >> 4)) & 0x3f];
