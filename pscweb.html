@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-GB"><!-- https://github.com/cpp-tutor/pseudocode-compiler/ -->
+<head>
+<meta charset="UTF-8">
+<title>Pseudocode to JavaScript Compiler</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="pscweb.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+<script type="text/javascript" src="pscweb.js">
+</script>
+<span>
+<div>
+<h2 align="center">Pseudocode to JavaScript Compiler</h2>
+</div>
+<div class="window">
+<form id="input">
+<label for="program_source_id"><h3 align="center">Type your program in here</h3>
+<textarea name="program_source"></textarea>
+</label>
+<div>
+<button type="button" onClick="run()">Run program</button>
+<button type="button" onClick="clear_output()">Clear output</button>
+<input type="text" name="user_input" placeholder="Input1,Input2..." maxlength="128"/>
+</div>
+</form>
+</div>
+<div class="window">
+<h3 align="center">View the output of your program here</h3>
+<pre id="program_output"></pre>
+</div>
+</span>
+</body>
+</html>
