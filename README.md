@@ -18,6 +18,8 @@ Method:
 
 * Run `nmake /f Makefile.nmake` and locate generated `psc.exe`
 
+* (Optional) Use `pscexamples.exe` to generate `pscexamples.js`
+
 ## Building under Linux
 
 Prerequisites:
@@ -31,6 +33,8 @@ Method:
 * Unzip the contents of the release zipfile to a user directory and navigate to it
 
 * Run `make` to generate `psc`
+
+* (Optional) Use `./pscexamples` to generate `pscexamples.js`
 
 ## Running the compiler
 
@@ -64,13 +68,15 @@ The minimum setup under Debian/Ubuntu is:
 ```
 $ sudo apt install apache2
 $ sudo a2enmod cgi
+$ sudo cp pscweb.* /var/www/html/
+$ sudo cp psc /usr/lib/cgi-bin/
 ```
 
 (Possibly with `sudo a2ensite ...` and restarting the `apache2` service too.) See your individual distro's documentation for how to install and set up a webserver.
 
-Windows needs Internet Information Services (IIS) Manager to be enabled and set up together with a permissions rule for the executable binary, see documentation for your version of Windows (tested under Windows 10). Note that **some editing of `pscweb.html` is necessary**: `/cgi-bin/psc?` needs to be changed to `./psc.exe?` (note the `.`), assuming that the utility is located in the same directory as the web-page.
+Windows needs Internet Information Services (IIS) Manager to be enabled and set up together with a permissions rule for the executable binary, see documentation for your version of Windows (tested under Windows 10). Note that **some editing of `pscweb.js` is necessary in function run()**: `/cgi-bin/psc?` needs to be changed to `./psc.exe?` (note the `.`), this is assuming that the utility is located in the same directory as the web-page.
 
-Note that inputs to the running program have to be entered into the text field bottom-left **before** the program is run, these being separated by commas. Also the user is prompted to clear the output window when it is full. These are the only significant difference to running the Javascript in a console window.
+Note that inputs to the running program have to be entered into the text field bottom-right **before** the program is run, these being separated by commas. Also the user is prompted to clear the output window when it is full. These are the only significant differences to running the Javascript in a console window.
 
 ## License
 
@@ -87,3 +93,5 @@ Pseudocode Specification as an unrestricted download from the AQA website:
 https://filestore.aqa.org.uk/resources/computing/AQA-8525-NG-PC.PDF
 
 Note that the only deliberate change from the specification is for `SUBROUTINE` parameters needing to be followed by `: Type` (as for `RECORD` fields), but not where the `SUBROUTINE` is called with arguments.
+
+**Update:** Compound assignment of `RECORD`s now appears in the specification above, as does `OUTPUT`ing of a comma-separated list of `StringExp`s. Support for both of these is anticipated in a future release.
