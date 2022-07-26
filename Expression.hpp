@@ -103,6 +103,9 @@ public:
         }
         else {
                         if (left && right) {
+                                if (op == Operator::DIV) {
+                                    output << "Math.floor";
+                                }
                                 output << '(';
                                 left->emit();
                                 output << ' ' << valid_ops.at(op).first << ' ';
