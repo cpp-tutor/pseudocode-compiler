@@ -9,26 +9,38 @@
 <body>
 <script type="text/javascript" src="pscweb.js">
 </script>
-<span>
+<script type="text/javascript" src="pscexamples.js">
+</script>
 <div>
-<h2 align="center">Pseudocode to JavaScript Compiler</h2>
+<h2 style="text-align: center">Pseudocode to JavaScript Compiler</h2>
 </div>
 <div class="window">
+<h3 style="text-align: center">Type your program here</h3>
 <form id="input" accept-charset="utf-8" spellcheck="false">
-<label for="program_source_id"><h3 align="center">Type your program in here</h3>
 <textarea name="program_source"></textarea>
-</label>
-<div>
-<button type="button" onClick="run()">Run program</button>
-<button type="button" onClick="clear_output()">Clear output</button>
-<input type="text" name="user_input" placeholder="Input1,Input2..." maxlength="128"/>
-</div>
 </form>
+<div class="bar">
+<button type="button" onClick="run()">Run program</button>
+<button type="button" onClick="clear_input()">Clear window</button>
+<span class="load-menu">
+<div class="load-menu-content" id="examples">
 </div>
+<button type="button">Load example</button>
+</span>
+</div>
+</div>
+<script type="text/javascript">
+createmenu();
+</script>
 <div class="window">
-<h3 align="center">View the output of your program here</h3>
+<h3 style="text-align: center">View the output here</h3>
+<div class="output">
 <pre id="program_output"></pre>
 </div>
-</span>
+<div class="bar">
+<button type="button" onClick="clear_output()">Clear output</button>
+<input type="text" id="user_input" placeholder="Input1,Input2..." maxlength="128"/>
+</div>
+</div>
 </body>
 </html>

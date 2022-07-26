@@ -1,9 +1,9 @@
 // pscweb.js : support library for Pseudocode Compiler web interface
 
-var input_index = 0;
+var input_index = 0, pseudocode_examples;
 
 function readline() {
-    let input = document.getElementById('input').elements['user_input'].value;
+    let input = document.getElementById('user_input').value;
     var input_read = '';
     var more = input.indexOf(',', input_index);
     if (more != -1) {
@@ -14,15 +14,20 @@ function readline() {
     else {
          input_read = input.substring(input_index);
     }
-    print(input_read);
+    if (input_read != '') {
+        print(input_read);
+    }
+    else {
+        print('#Empty input#');
+    }
     return input_read;
 }
 
 function print(line) {
-    let max_lines = 28, max_length = 60;
-    let lines = document.getElementById('program_output').innerHTML.split('\n').length;
+    let max_lines = 26, max_length = 60;
+    let lines = document.getElementById('program_output').innerHTML.split('\n').length + line.length / max_length;
     if (lines > max_lines) {
-        alert('Too many lines of output. Please clear the output window!');
+        alert('Too many lines of output! Please clear the output window.');
         throw new Error('Window full');
     }
     while(line.length > max_length) {
@@ -34,6 +39,10 @@ function print(line) {
 
 function clear_output() {
     document.getElementById('program_output').innerHTML = '';
+}
+
+function clear_input() {
+    document.getElementById('input').elements['program_source'].value = '';
 }
 
 function toutf8(str) {
@@ -77,3 +86,28 @@ function run() {
     document.body.appendChild(script);
 }
 
+function createmenu() {
+    var container = document.getElementById('examples');
+    if (pseudocode_examples == undefined) {
+        container.innerHTML = '<p onclick="alert(\'Could not load pscexamples.js\');">No examples</p>';
+        return;
+    }
+    for (var e = 0; e != pseudocode_examples.length; e++) {
+        container.innerHTML += '<p onclick="menuload(\'' + pseudocode_examples[e].name + '\');">' + pseudocode_examples[e].name + '</p>\n';
+    }
+}
+
+function menuload(program) {
+    var container = document.getElementById('input').elements['program_source'];
+    if (container.value != '') {
+        alert('Please clear input window first!');
+        return;
+    }
+    for (var e = 0; e != pseudocode_examples.length; e++) {
+        if ((pseudocode_examples[e].name == program) && (pseudocode_examples[e].code != undefined)) {
+            container.value = pseudocode_examples[e].code;
+            return;
+        }
+    }
+    alert('Could not load program ' + program);
+}

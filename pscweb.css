@@ -20,41 +20,93 @@ h3 {
   margin: 2pt;
 }
 
-pre {
-  font-size: 12pt;
-  line-height: 14pt;
-}
-
-textarea {
-  width: 584px;
-  height: 512px;
-  background-color: rgba(0, 0, 0, 0);
-  border: 8px;
-  padding: 8px;
-  font-size: 12pt;
-  resize: none;
-}
-
-button {
-  border: 2px solid rgb(0, 0, 0);
-  border-radius: 3px;
-  background-color: rgb(224, 224, 224);
-}
-
-input {
-  border: 2px solid rgb(0, 0, 0);
-  border-radius: 3px;
-  background-color: rgb(255, 255, 255);
-  width: 60%;
-  float: right;
-}
-
 .window {
   background-color: rgb(224, 160, 224);
   margin: 4px;
   padding: 8px;
   border-radius: 10px;
   width: 600px;
-  height: 584px;
+  height: 576px;
   float: left;
+}
+
+.window pre {
+  font-size: 12pt;
+  line-height: 14pt;
+}
+
+.window textarea {
+  width: 584px;
+  height: 480px;
+  background-color: rgba(0, 0, 0, 0);
+  border: 8px;
+  padding: 8px;
+  font-size: 12pt;
+  line-height: 14pt;
+  resize: none;
+}
+
+.window button {
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 3px;
+  background-color: rgb(224, 224, 224);
+  font-size: 10pt;
+  padding: 2pt;
+}
+
+.window input {
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 3px;
+  background-color: rgb(255, 255, 255);
+  font-size: 10pt;
+  padding: 2pt;
+  width: 80%;
+}
+
+.output {
+  width: 584px;
+  height: 484px;
+}
+
+.bar {
+  height: 100%;
+  position: relative;
+  bottom :-8pt;
+  left: 0;
+}
+
+.load-menu {
+  display: inline-block;
+  position: relative;
+}
+
+.load-menu-content {
+  display: none;
+  position: absolute;
+  width: 100%;
+  overflow: visible;
+  bottom: 18pt;
+}
+
+.load-menu:hover .load-menu-content {
+  display: block;
+}
+
+.load-menu-content p {
+  display: block;
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+  border-radius: 0px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(0, 0, 0);
+  padding: 4px;
+  margin: 0px;
+  font-size: 10pt;
+  text-decoration: none;
+}
+ 
+.load-menu-content p:hover {
+  color: rgb(0, 0, 0);
+  background-color: rgb(224, 160, 224);
 }
