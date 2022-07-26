@@ -13,8 +13,10 @@ CPPFlags = /nologo /EHsc /std:c++20 /O2 /wd4005 $(FlexLexer_h)
 Target = psc.exe
 Objs = Lexer.obj Parser.obj main.obj
 Autogen = Lexer.cpp Parser.hpp Parser.cpp Location.hpp
+Progs = pscexamples.exe
+ProgsObjs = pscexamples.obj
 
-all: $(Target)
+all: $(Target) $(Progs)
 
 $(Autogen): scanner.l grammar.y
   $(Bison) grammar.y
@@ -26,8 +28,11 @@ $(Autogen): scanner.l grammar.y
 $(Target): $(Autogen) $(Objs)
   $(CPP) $(CPPFlags) /Fe$(Target) $(Objs)
 
+$(Progs): $(ProgsObjs)
+  $(CPP) $(CPPFlags) /Fe$(Progs) $(ProgsObjs)
+
 clean:
-  del $(Target) $(Objs) $(Autogen)
+  del $(Progs) $(ProgsObjs) $(Target) $(Objs) $(Autogen)
 
 # Static dependencies
 Lexer.obj: SymbolTypes.hpp Tree.hpp Expression.hpp Symbol.hpp Lexer.hpp Parser.hpp
