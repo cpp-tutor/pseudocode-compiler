@@ -69,7 +69,7 @@
 %token <IntT>           INTEGER;
 %token <BoolT>          BOOLEAN;
 
-%nterm <Tree*>                          Block Stmnts Stmnt If Else While Repeat For Sub
+%nterm <Tree*>                          Block Stmnts Stmnt Marker
 %nterm <Expression*>                    Exp BoolExp
 %nterm <std::string>                    SubId SubCall ForId ForInId
 %nterm <std::pair<std::string,ExpI>>    Field Param
@@ -237,19 +237,19 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         prev->link($$);
                         prev = $$;
                 }
-        | If BoolExp THEN EOL Block ElseIfs Else EOL Block ENDIF EOL {
-                        $$ = new If($2, $5, $9, $6);
-                        $1->link($$);
+        | IF BoolExp THEN EOL Marker Block ElseIfs ELSE EOL Marker Block ENDIF EOL {
+                        $$ = new If($2, $6, $11, $7);
+                        $5->link($$);
                         prev = $$;
                 }
-        | If BoolExp THEN EOL Block Else EOL Block ENDIF EOL {
-                        $$ = new If($2, $5, $8);
-                        $1->link($$);
+        | IF BoolExp THEN EOL Marker Block ELSE EOL Marker Block ENDIF EOL {
+                        $$ = new If($2, $6, $10);
+                        $5->link($$);
                         prev = $$;
                 }
-        | If BoolExp THEN EOL Block ENDIF EOL {
-                        $$ = new If($2, $5);
-                        $1->link($$);
+        | IF BoolExp THEN EOL Marker Block ENDIF EOL {
+                        $$ = new If($2, $6);
+                        $5->link($$);
                         prev = $$;
                 }
         | OUTPUT Exp EOL {
@@ -261,25 +261,25 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         prev->link($$);
                         prev = $$;
                 }
-        | While BoolExp EOL Block ENDWHILE EOL {
-                        $$ = new While($2, $4);
-                        $1->link($$);
+        | WHILE BoolExp EOL Marker Block ENDWHILE EOL {
+                        $$ = new While($2, $5);
+                        $4->link($$);
                         prev = $$;
                 }
-        | Repeat EOL Block UNTIL BoolExp EOL {
-                        $$ = new RepeatUntil($5, $3);
-                        $1->link($$);
+        | REPEAT EOL Marker Block UNTIL BoolExp EOL {
+                        $$ = new RepeatUntil($6, $4);
+                        $3->link($$);
                         prev = $$;
                 }
-        | For ForId ASSIGN Exp TO Exp EOL Block ENDFOR EOL {
+        | FOR ForId ASSIGN Exp TO Exp EOL Marker Block ENDFOR EOL {
                         if (($4->type() != ExpI::IntT) || ($6->type() != ExpI::IntT)) {
                                 error(location(@4.begin, @6.end), "FOR expressions must be IntExp");
                         }
-                        $$ = new For($2, $4, $6, new Value(1), $8);
-                        $1->link($$);
+                        $$ = new For($2, $4, $6, new Value(1), $9);
+                        $8->link($$);
                         prev = $$;
                 }
-        | For ForId ASSIGN Exp TO Exp STEP Exp EOL Block ENDFOR EOL {
+        | FOR ForId ASSIGN Exp TO Exp STEP Exp EOL Marker Block ENDFOR EOL {
                         if (($4->type() != ExpI::IntT) || ($6->type() != ExpI::IntT) || ($8->type() != ExpI::IntT)) {
                                 error(location(@4.begin, @8.end), "FOR expressions must be IntExp");
                         }
@@ -289,16 +289,16 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         else if (!std::get<IntT>($8->apply())) {
                                 error(@8, "STEP must be non-zero");
                         }
-                        $$ = new For($2, $4, $6, $8, $10);
-                        $1->link($$);
+                        $$ = new For($2, $4, $6, $8, $11);
+                        $10->link($$);
                         prev = $$;
                 }
-        | For ForInId IN Exp EOL Block ENDFOR EOL {
+        | FOR ForInId IN Exp EOL Marker Block ENDFOR EOL {
                         if ($4->type() != ExpI::StringT) {
                                 error(@4, "FOR-IN expressions must be StringExp");
                         }
-                        $$ = new ForIn($2, $4, $6);
-                        $1->link($$);
+                        $$ = new ForIn($2, $4, $7);
+                        $6->link($$);
                         prev = $$;
                 }
         | RECORD ID EOL Fields ENDRECORD EOL {
@@ -329,20 +329,20 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         prev->link($$);
                         prev = $$;
                 }
-        | Sub SubId Params RPAREN EOL Block ENDSUBROUTINE EOL {
+        | SUBROUTINE SubId Params RPAREN EOL Marker Block ENDSUBROUTINE EOL {
                         table->endsub($3);
-                        $$ = new Subroutine(new Decls(table, $2), $2, std::pair { $3, ExpI::None }, $6);
-                        $1->link($$);
+                        $$ = new Subroutine(new Decls(table, $2), $2, std::pair { $3, ExpI::None }, $7);
+                        $6->link($$);
                         prev = $$;
                 }
-        | Sub SubId Params RPAREN EOL Block RETURN Exp EOL ENDSUBROUTINE EOL {
-                        table->endsub($3, $8->type());
-                        if ($8->type() > ExpI::StringT) {
+        | SUBROUTINE SubId Params RPAREN EOL Marker Block RETURN Exp EOL ENDSUBROUTINE EOL {
+                        table->endsub($3, $9->type());
+                        if ($9->type() > ExpI::StringT) {
                                 error(@8, "unsupported return type for subroutine");
                                 YYERROR;
                         }
-                        $$ = new Subroutine(new Decls(table, $2), $2, std::pair { $3, $8->type() }, $6, $8);
-                        $1->link($$);
+                        $$ = new Subroutine(new Decls(table, $2), $2, std::pair { $3, $9->type() }, $7, $9);
+                        $6->link($$);
                         prev = $$;
                 }
         | SubCall Args RPAREN EOL {
@@ -364,29 +364,14 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                 }
         ;
 
-If      : IF { $$ = prev; prev = new Empty; }
-        ;
-
-Else    : ELSE { $$ = prev; prev = new Empty; }
-        ;
-
-While   : WHILE { $$ = prev; prev = new Empty; }
-        ;
-
-Repeat  : REPEAT { $$ = prev; prev = new Empty; }
-        ;
-
-For     : FOR { $$ = prev; prev = new Empty; }
-        ;
-
-Sub     : SUBROUTINE { $$ = prev; prev = new Empty; }
+Marker  : %empty { $$ = prev; prev = new Empty; } /* [Compilers] p350 */
         ;
 
 ElseIfs : ElseIf { $$.push_back($1); }
         | ElseIfs ElseIf { $$ = $1; $$.push_back($2); }
         ;
 
-ElseIf  : Else IF Exp THEN EOL Block { $$ = std::pair { $3, $6 }; }
+ElseIf  : ELSE IF Exp THEN EOL Marker Block { $$ = std::pair { $3, $7 }; }
         ;
 
 ForId   : ID {
