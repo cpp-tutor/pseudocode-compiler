@@ -17,8 +17,10 @@ WHILE primes > 0
   WHILE p * p <= n
     IF n MOD p = 0 THEN
       is_prime <- False
+      p <- n
+    ELSE
+      p <- p + 1
     ENDIF
-    p <- p + 1
   ENDWHILE
   IF is_prime THEN
     printout <- printout + INT_TO_STRING(n) + ' '
