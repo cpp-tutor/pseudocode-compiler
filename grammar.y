@@ -204,6 +204,10 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         }
                 }
         | ID ASSIGN ID LCURL Args RCURL EOL {
+                        if (!table->check($3).first || table->type($3) != ExpI::RecordT) {
+                                error(@1, "no such record: " + $3);
+                                YYERROR;
+                        }
                         if ($5.size() != std::get<RecordT>(table->value($3)).size()) {
                                 error(@2, "wrong number of fields for record type: " + $3);
                                 YYERROR;
