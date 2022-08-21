@@ -52,9 +52,6 @@ public:
     virtual ExpI type() override {
         return ExpI::IntT;
     }
-    virtual ~StringPos() {
-        delete sub;
-    }
 };
 
 class StringSub : public Expression {
@@ -85,10 +82,6 @@ public:
     }
     virtual ExpI type() override {
         return ExpI::StringT;
-    }
-    virtual ~StringSub() {
-        delete from;
-        delete to;
     }
 };
 

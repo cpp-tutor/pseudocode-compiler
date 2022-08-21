@@ -6,7 +6,6 @@
 namespace yy {
 
 class Lexer : public yyFlexLexer {
-size_t location_x{ 1 }, location_y{ 1 };
 public:
     Lexer(std::istream& arg_yyin, std::ostream& arg_yyout)
         : yyFlexLexer(arg_yyin, arg_yyout) {}

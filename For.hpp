@@ -35,11 +35,7 @@ public:
             right->emit();
         }
     }
-    virtual ~For() {
-        delete from;
-        delete to;
-        delete step;
-    }
+
 };
 
 class ForIn : public Tree {
@@ -62,9 +58,6 @@ public:
         if (right) {
             right->emit();
         }
-    }
-    virtual ~ForIn() {
-        delete exp;
     }
 };
 

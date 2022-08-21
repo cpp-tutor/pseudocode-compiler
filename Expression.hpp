@@ -29,6 +29,7 @@ public:
     virtual bool isConstant() = 0;
     virtual ExpI type() = 0;
     virtual ExpT apply() = 0;
+    virtual ~Expression() {}
 protected:
     template<typename T>
     inline static const std::unordered_map<Operator,std::function<BoolT(T,T)>> Rel_ops{
@@ -42,7 +43,7 @@ protected:
     inline static const std::unordered_map<Operator,std::function<BoolT(BoolT,BoolT)>> BoolT_ops{
         { Operator::OR, [](IntT a, IntT b){ return a | b; } },
         { Operator::AND, [](IntT a, IntT b){ return a & b; } },
-        { Operator::NOT, [](IntT a, IntT b){ return ~a; } }
+        { Operator::NOT, [](IntT a, [[maybe_unused]] IntT b){ return ~a; } }
     };
     inline static const std::unordered_map<Operator,std::function<IntT(IntT,IntT)>> IntT_ops{
         { Operator::plus, [](IntT a, IntT b){ return a + b; } },
@@ -50,14 +51,14 @@ protected:
         { Operator::multiply, [](IntT a, IntT b){ return a * b; } },
         { Operator::DIV, [](IntT a, IntT b){ return a / b; } },
         { Operator::MOD, [](IntT a, IntT b){ return a % b; } },
-        { Operator::negative, [](IntT a, IntT b){ return -a; } }
+        { Operator::negative, [](IntT a, [[maybe_unused]] IntT b){ return -a; } }
     };
     inline static const std::unordered_map<Operator,std::function<RealT(RealT,RealT)>> RealT_ops{
         { Operator::plus, [](RealT a, RealT b){ return a + b; } },
         { Operator::minus, [](RealT a, RealT b){ return a - b; } },
         { Operator::multiply, [](RealT a, RealT b){ return a * b; } },
         { Operator::divide, [](RealT a, RealT b){ return a / b; } },
-        { Operator::negative, [](RealT a, RealT b){ return -a; } }
+        { Operator::negative, [](RealT a, [[maybe_unused]] RealT b){ return -a; } }
     };
     inline static const std::unordered_map<Operator,std::function<StringT(StringT,StringT)>> StringT_ops{
         { Operator::plus, [](StringT a, StringT b){ return static_cast<StringT>(a.append(b)); } }
@@ -179,7 +180,7 @@ class Variable : public Expression {
     ExpI tp;
 public:
     Variable(ExpI t, std::string_view l)
-        : tp{ t }, label{ l } {}
+        : label{ l }, tp{ t } {}
     virtual bool isConstant() override {
         return false;
     }

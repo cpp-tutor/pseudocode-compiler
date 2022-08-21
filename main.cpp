@@ -34,8 +34,8 @@ const std::vector<std::pair<std::string_view,std::string_view>> Options{
 #endif
 };
 
-const auto support_nodejs_code = 1 + R"(
-const readline_sync = require('readline-sync');
+const auto support_nodejs_code = 
+        R"(const readline_sync = require('readline-sync');
 function readline() {
     return readline_sync.question('');
 }
