@@ -19,7 +19,7 @@ public:
         }
         else if (iter->second.index() == 2) {
             if (std::get<ExpI>(iter->second) != std::get<ExpI>(value)) {
-                throw std::runtime_error("attempt assign with different type");
+                throw std::runtime_error("attempt to assign with different type");
             }
         }
     }
@@ -101,6 +101,33 @@ public:
         }
         return ExpI::None;
     }
+    ExpI fieldtype(const std::string& label, size_t field) {
+        if (auto iter = SymTab.find(subroutine + '.' + label); iter != SymTab.end()) {
+            if ((iter->second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(iter->second).index()) == ExpI::RecordT)) {
+                const auto& recfield = std::get<RecordT>(std::get<ExpT>(iter->second));
+                return recfield.at(field).second;
+            }
+        }
+        return ExpI::None;
+    }
+    std::string fieldname(const std::string& label, size_t field) {
+        if (auto iter = SymTab.find(subroutine + '.' + label); iter != SymTab.end()) {
+            if ((iter->second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(iter->second).index()) == ExpI::RecordT)) {
+                const auto& recfield = std::get<RecordT>(std::get<ExpT>(iter->second));
+                return recfield.at(field).first;
+            }
+        }
+        return "";
+    }
+    std::string record(const std::string& label) {
+        if (auto iter = SymTab.find(subroutine + '.' + label); iter != SymTab.end()) {
+            if ((iter->second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(iter->second).index()) == ExpI::ObjectT)) {
+                const auto& obj = std::get<ObjectT>(std::get<ExpT>(iter->second));
+                return static_cast<std::string>(obj);
+            }
+        }
+        return "";
+    }
     ExpI arraytype(const std::string& label) {
         if (auto iter = SymTab.find(subroutine + '.' + label); iter != SymTab.end()) {
             if ((iter->second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(iter->second).index()) == ExpI::Array2T)) {
@@ -142,7 +169,7 @@ public:
                 if (s.second.index() == 2) {
                     vars.push_back(s.first.substr(subroutine.length() + 1));
                 }
-                else if ((s.second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(s.second).index()) == ExpI::RecordT)) {
+                else if ((s.second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(s.second).index()) == ExpI::ObjectT)) {
                     vars.push_back(s.first.substr(subroutine.length() + 1));
                 }
                 else if ((s.second.index() == 1) && (static_cast<ExpI>(std::get<ExpT>(s.second).index()) == ExpI::Array2T)) {
@@ -182,6 +209,7 @@ public:
                         output << " = []";
                         break;
                     case ExpI::RecordT:
+                    case ExpI::ObjectT:
                         output << " = {}";
                         break;
                     default:
@@ -215,6 +243,7 @@ inline std::ostream& operator<<(std::ostream& os, const ExpT& expr) {
         case ExpI::Array2T:
             return os << "[]";
         case ExpI::RecordT:
+        case ExpI::ObjectT:
             os << "{ ";
             for (auto sep = ""; const auto& field : std::get<RecordT>(expr)) {
                 os << sep << field.first + ": ";

@@ -61,6 +61,8 @@
         DOT "."
         LBRAK "["
         RBRAK "]"
+        LCURL "{"
+        RCURL "}"
         ;
 
 %token <std::string>    ID SUBID UNKNOWN;
@@ -76,7 +78,7 @@
 %nterm <std::pair<Expression*,Tree*>>   ElseIf
 %nterm <std::vector<std::pair<Expression*,Tree*>>>                              ElseIfs
 %nterm <std::vector<std::pair<std::string,ExpI>>>                               Fields Params
-%nterm <std::vector<Expression*>>                                               Array Args
+%nterm <std::vector<Expression*>>                                               Args
 %nterm <std::vector<std::variant<Expression *,std::vector<Expression*>>>>       Array2
 
 %left OR
@@ -201,6 +203,24 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                                 YYERROR;
                         }
                 }
+        | ID ASSIGN ID LCURL Args RCURL EOL {
+                        if ($5.size() != std::get<RecordT>(table->value($3)).size()) {
+                                error(@2, "wrong number of fields for record type: " + $3);
+                                YYERROR;
+                        }
+                        std::vector<std::string> fields;
+                        for (int i = 0; auto& e : $5) {
+                                if (e->type() != table->fieldtype($3, i)) {
+                                        error(@2, "wrong type(s) of field value(s) for record type: " + $3);
+                                        YYERROR;
+                                }
+                                fields.push_back(table->fieldname($3, i++));
+                        }
+                        table->store($1, ExpT{ ObjectT{ $3 } });
+                        $$ = new ObjectAssign(std::move(fields), $1, std::move($5));
+                        prev->link($$);
+                        prev = $$;
+                }
         | ID LBRAK Exp RBRAK ASSIGN Exp EOL {
                         if ($3->type() != ExpI::IntT) {
                                 error(@3, "array index must be IntExp");
@@ -252,10 +272,12 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         $5->link($$);
                         prev = $$;
                 }
-        | OUTPUT Exp EOL {
-                        if ($2->type() != ExpI::StringT) {
-                                error(@2, "expression to output must be a StringExp");
-                                YYERROR;
+        | OUTPUT Args EOL {
+                        for (auto& exp : $2) {
+                                if (exp->type() != ExpI::StringT) {
+                                        error(@2, "expression to output must be a StringExp");
+                                        YYERROR;
+                                }
                         }
                         $$ = new Output($2);
                         prev->link($$);
@@ -307,16 +329,30 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                                 YYERROR;
                         }
                         table->store($2, ExpT{ $4 });
-                        $$ = new Assign(new Value($4), $2);
+                        $$ = new Empty;
+                        prev->link($$);
+                        prev = $$;
+                }
+	| ID ASSIGN ID LPAREN Args RPAREN {
+                        if (!table->check($3).first || table->type($3) != ExpI::RecordT) {
+                                error(@3, "no such record: " + $3);
+                                YYERROR;
+                        }
+                        $$ = new Empty;
                         prev->link($$);
                         prev = $$;
                 }
         | ID DOT ID ASSIGN Exp {
-                        if (!table->check($1).first) {
+                        if (!table->check($1).first || table->type($1) != ExpI::ObjectT) {
                                 error(@1, "no such record: " + $1);
                                 YYERROR;
                         }
-                        auto type = table->fieldtype($1, $3);
+                        auto record_type = table->record($1);
+                        if (record_type.empty()) {
+                                error(@1, "no such record type: " + record_type);
+                                YYERROR;
+                        }
+                        auto type = table->fieldtype(record_type, $3);
                         if (type == ExpI::None) {
                                 error(@3, "no such field: " + $3);
                                 YYERROR;
@@ -347,7 +383,6 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                 }
         | SubCall Args RPAREN EOL {
                         if ($2.size() != table->types($1).first.size()) {
-                                std::cerr << $2.size() << ' ' << table->types($1).first.size() << '\n';
                                 error(@2, "wrong number of arguments for call to subroutine: " + $1);
                                 YYERROR;
                         }
@@ -458,21 +493,16 @@ SubCall : SUBID {
                 }
         ;
 
-Args    : Args COMMA Exp { $$ = $1; $$.push_back($3); }
+Args    : %empty { $$ = {}; }
         | Exp { $$.push_back($1); }
-        | %empty { $$ = {}; }
-        ;
-
-Array   : %empty { $$ = {}; }
-        | Exp { $$.push_back($1); }
-        | Array COMMA Exp { $$ = $1; $$.push_back($3); }
+        | Args COMMA Exp { $$ = $1; $$.push_back($3); }
         ;
 
 Array2  : %empty { $$ = {}; }
         | Exp { $$.push_back($1); }
         | Array2 COMMA Exp { $$ = $1; $$.push_back($3); }
-        | LBRAK Array RBRAK { $$.push_back($2); }
-        | Array2 COMMA LBRAK Array RBRAK { $$ = $1; $$.push_back($4); }
+        | LBRAK Args RBRAK { $$.push_back($2); }
+        | Array2 COMMA LBRAK Args RBRAK { $$ = $1; $$.push_back($4); }
         ;
 
 BoolExp : Exp {
@@ -503,16 +533,21 @@ Exp     : STRING { $$ = new Value($1); }
                         }
                 }
         | ID DOT ID {
-                        if (!table->check($1).first) {
+                        if (!table->check($1).first || table->type($1) != ExpI::ObjectT) {
                                 error(@1, "no such record: " + $1);
                                 YYERROR;
                         }
-                        auto type = table->fieldtype($1, $3);
+                        auto record_type = table->record($1);
+                        if (record_type.empty()) {
+                                error(@1, "no such record type: " + record_type);
+                                YYERROR;
+                        }
+                        auto type = table->fieldtype(record_type, $3);
                         if (type == ExpI::None) {
                                 error(@3, "no such field: " + $3);
                                 YYERROR;
                         }
-                        $$ = new Variable(table->fieldtype($1, $3), $1 + '.' + $3);
+                        $$ = new Variable(table->fieldtype(record_type, $3), $1 + '.' + $3);
                 }
         | ID LBRAK Exp RBRAK { $$ = new Element($1, $3, std::get<ExpI>(std::get<Array2T>(table->value($1)).at(0))); }
         | ID LBRAK Exp RBRAK LBRAK Exp RBRAK { $$ = new Element2($1, $3, $6, std::get<ArrayT>(std::get<Array2T>(table->value($1)).at(0)).at(0)); }
@@ -536,7 +571,6 @@ Exp     : STRING { $$ = new Value($1); }
         | USERINPUT { $$ = new UserInput(); }
         | SubCall Args RPAREN {
                         if ($2.size() != table->types($1).first.size()) {
-                                std::cerr << $2.size() << ' ' << table->types($1).first.size() << '\n';
                                 error(@2, "wrong number of arguments for call to subroutine: " + $1);
                                 YYERROR;
                         }
@@ -635,7 +669,7 @@ Exp     : STRING { $$ = new Value($1); }
 %%
 
 void yy::Parser::error(const location_type& loc, const std::string &e) {
-        *err << "Location " << loc.begin.line << ':' << loc.begin.column;
+        *err << loc.begin.line << ':' << loc.begin.column;
         if (loc.end.line != loc.begin.line) {
                 *err << '-' << loc.end.line << ':' << loc.end.column - 1;
         }

@@ -102,22 +102,22 @@ public:
             output << apply();
         }
         else {
-                        if (left && right) {
-                                if (op == Operator::DIV) {
-                                    output << "Math.floor";
-                                }
-                                output << '(';
-                                left->emit();
-                                output << ' ' << valid_ops.at(op).first << ' ';
-                                right->emit();
-                                output << ')';
-                        }
-                        else if (left) {
-                                output << '(';
-                                output << valid_ops.at(op).first;
-                                left->emit();
-                                output << ')';
-                        }
+            if (left && right) {
+                if (op == Operator::DIV) {
+                    output << "Math.floor";
+                }
+                output << '(';
+                left->emit();
+                output << ' ' << valid_ops.at(op).first << ' ';
+                right->emit();
+                output << ')';
+            }
+            else if (left) {
+                output << '(';
+                output << valid_ops.at(op).first;
+                left->emit();
+                output << ')';
+            }
         }
     }
     virtual ExpT apply() override {
@@ -275,6 +275,28 @@ public:
             }
             output << " ];\n";
         }
+        if (right) {
+            right->emit();
+        }
+    }
+};
+
+class ObjectAssign : public Tree {
+    std::vector<std::string> fields;
+    std::string label;
+    std::vector<Expression *> values;
+public:
+    ObjectAssign(std::vector<std::string>&& f, std::string_view l, std::vector<Expression *>&& v)
+        : Tree(nullptr, nullptr), fields{ f }, label{ l }, values{ v } {}
+    virtual void emit() override {
+        size_t v{ 0 };
+        output << indent << label << " = { ";
+        for (auto sep = ""; auto& f : fields) {
+            output << sep << f << ": ";
+            values.at(v++)->emit();
+            sep = ", ";
+        }
+        output << " };\n";
         if (right) {
             right->emit();
         }
