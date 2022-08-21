@@ -20,16 +20,17 @@ public:
 };
 
 class Output : public Tree {
+    std::vector<Expression *> out;
 public:
-    Output(Expression *o)
-        : Tree(o, nullptr) {}
+    Output(std::vector<Expression *> &o)
+        : Tree(nullptr, nullptr), out{ o } {}
     virtual void emit() override {
-        Expression *out = dynamic_cast<Expression*>(left);
-        if (!out || (out->type() != ExpI::StringT)) {
-            throw std::runtime_error("needs to be a StringExp for output");
-        }
         output << indent << "print(";
-        out->emit();
+        for (auto sep = ""; auto& o : out) {
+            output << sep;
+            o->emit();
+            sep = " + ";
+        }
         output << ");\n";
         if (right) {
             right->emit();
