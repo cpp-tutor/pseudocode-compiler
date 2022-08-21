@@ -92,6 +92,11 @@ Pseudocode Specification as an unrestricted download from the AQA website:
 
 https://filestore.aqa.org.uk/resources/computing/AQA-8525-NG-PC.PDF
 
-Note that the only deliberate change from the specification is for `SUBROUTINE` parameters needing to be followed by `: Type` (as for `RECORD` fields), but not where the `SUBROUTINE` is called with arguments.
+Note that the only deliberate changes from the specification are:
 
-**Update:** Compound assignment of `RECORD`s now appears in the specification above, as does `OUTPUT`ing of a comma-separated list of `StringExp`s. Support for both of these is anticipated in a future release.
+* `SUBROUTINE` parameters in a definition needing to be followed by `: Type` (as for `RECORD` fields), but not where the `SUBROUTINE` is called with arguments.
+
+* Initiializing a variable from a `RECORD` type needs curly braces `{` and `}` and not plain parentheses, this is due to the earlier design of the compiler which means it cannot otherwise distinguish from a `SUBROUTINE` call (with the name of the `RECORD`)
+
+ 
+**Update:** Compound assignment of variables from `RECORD`s (in addition to field assignment) now appears in the specification above, as does `OUTPUT`ing of a comma-separated list of `StringExp`s. Support for both of these is provided.
