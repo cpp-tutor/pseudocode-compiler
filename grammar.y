@@ -204,26 +204,32 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         }
                 }
         | ID ASSIGN ID LCURL ExpList RCURL EOL {
-                        if (!table->check($3).first || table->type($3) != ExpI::RecordT || !std::get<RecordT>(table->value($3)).second) {
-                                error(@1, "no such record definition: " + $3);
-                                YYERROR;
-                        }
-                        if ($5.size() != std::get<RecordT>(table->value($3)).first.size()) {
-                                error(@2, "wrong number of fields for record type: " + $3);
-                                YYERROR;
-                        }
-                        for (size_t i{ 0 }; auto& e : $5) {
-                                if (e->type() != table->fieldtype($3, i++)) {
-                                        error(@2, "wrong type(s) of field value(s) for record type: " + $3);
+                        if (!table->check($1).first) {
+                                if (!table->check($3).first || table->type($3) != ExpI::RecordT || !std::get<RecordT>(table->value($3)).second) {
+                                        error(@3, "no such record definition: " + $3);
                                         YYERROR;
                                 }
+                                if ($5.size() != std::get<RecordT>(table->value($3)).first.size()) {
+                                        error(@5, "wrong number of fields for record type: " + $3);
+                                        YYERROR;
+                                }
+                                for (size_t i{ 0 }; auto& e : $5) {
+                                        if (e->type() != table->fieldtype($3, i++)) {
+                                                error(@5, "wrong type(s) of field value(s) for record type: " + $3);
+                                                YYERROR;
+                                        }
+                                }
+                                RecordT rec = std::get<RecordT>(table->value($3));
+                                rec.second = false;
+                                table->store($1, ExpT{ rec });
+                                $$ = new RecordAssign($1, std::move($5), std::move(rec));
+                                prev->link($$);
+                                prev = $$;
                         }
-                        RecordT rec = std::get<RecordT>(table->value($3));
-                        rec.second = false;
-                        table->store($1, ExpT{ rec });
-                        $$ = new RecordAssign($1, std::move($5), std::move(rec));
-                        prev->link($$);
-                        prev = $$;
+                        else {
+                                error(@1, "variable previously assigned: " + $1);
+                                YYERROR;
+                        }
                 }
         | ID LBRAK Exp RBRAK ASSIGN Exp EOL {
                         if ($3->type() != ExpI::IntT) {
