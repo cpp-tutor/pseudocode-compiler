@@ -282,19 +282,19 @@ public:
     }
 };
 
-class ObjectAssign : public Tree {
-    std::vector<std::string> fields;
+class RecordAssign : public Tree {
     std::string label;
     std::vector<Expression *> values;
+    RecordT rec;
 public:
-    ObjectAssign(std::vector<std::string>&& f, std::string_view l, std::vector<Expression *>&& v)
-        : Tree(nullptr, nullptr), fields{ f }, label{ l }, values{ v } {}
+    RecordAssign(std::string_view l, std::vector<Expression *>&& v, RecordT&& r)
+        : Tree(nullptr, nullptr), label{ l }, values{ v }, rec{ r } {}
     virtual void emit() override {
-        size_t v{ 0 };
+        size_t i{ 0 };
         output << indent << label << " = { ";
-        for (auto sep = ""; auto& f : fields) {
-            output << sep << f << ": ";
-            values.at(v++)->emit();
+        for (auto sep = ""; auto& f : rec.first) {
+            output << sep << f.first << ": ";
+            values.at(i++)->emit();
             sep = ", ";
         }
         output << " };\n";

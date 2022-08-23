@@ -77,8 +77,8 @@
 %nterm <std::pair<std::string,ExpI>>    Field Param
 %nterm <std::pair<Expression*,Tree*>>   ElseIf
 %nterm <std::vector<std::pair<Expression*,Tree*>>>                              ElseIfs
-%nterm <std::vector<std::pair<std::string,ExpI>>>                               Fields Params
-%nterm <std::vector<Expression*>>                                               Args
+%nterm <std::vector<std::pair<std::string,ExpI>>>                               Fields OptParL ParList
+%nterm <std::vector<Expression*>>                                               OptExpL ExpList
 %nterm <std::vector<std::variant<Expression *,std::vector<Expression*>>>>       Array2
 
 %left OR
@@ -203,25 +203,25 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                                 YYERROR;
                         }
                 }
-        | ID ASSIGN ID LCURL Args RCURL EOL {
-                        if (!table->check($3).first || table->type($3) != ExpI::RecordT) {
-                                error(@1, "no such record: " + $3);
+        | ID ASSIGN ID LCURL ExpList RCURL EOL {
+                        if (!table->check($3).first || table->type($3) != ExpI::RecordT || !std::get<RecordT>(table->value($3)).second) {
+                                error(@1, "no such record definition: " + $3);
                                 YYERROR;
                         }
-                        if ($5.size() != std::get<RecordT>(table->value($3)).size()) {
+                        if ($5.size() != std::get<RecordT>(table->value($3)).first.size()) {
                                 error(@2, "wrong number of fields for record type: " + $3);
                                 YYERROR;
                         }
-                        std::vector<std::string> fields;
-                        for (int i = 0; auto& e : $5) {
-                                if (e->type() != table->fieldtype($3, i)) {
+                        for (size_t i{ 0 }; auto& e : $5) {
+                                if (e->type() != table->fieldtype($3, i++)) {
                                         error(@2, "wrong type(s) of field value(s) for record type: " + $3);
                                         YYERROR;
                                 }
-                                fields.push_back(table->fieldname($3, i++));
                         }
-                        table->store($1, ExpT{ ObjectT{ $3 } });
-                        $$ = new ObjectAssign(std::move(fields), $1, std::move($5));
+                        RecordT rec = std::get<RecordT>(table->value($3));
+                        rec.second = false;
+                        table->store($1, ExpT{ rec });
+                        $$ = new RecordAssign($1, std::move($5), std::move(rec));
                         prev->link($$);
                         prev = $$;
                 }
@@ -276,7 +276,7 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         $5->link($$);
                         prev = $$;
                 }
-        | OUTPUT Args EOL {
+        | OUTPUT ExpList EOL {
                         for (auto& exp : $2) {
                                 if (exp->type() != ExpI::StringT) {
                                         error(@2, "expression to output must be a StringExp");
@@ -332,31 +332,17 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                                 error(@2, "already exists: " + $2);
                                 YYERROR;
                         }
-                        table->store($2, ExpT{ $4 });
-                        $$ = new Empty;
-                        prev->link($$);
-                        prev = $$;
-                }
-	| ID ASSIGN ID LPAREN Args RPAREN {
-                        if (!table->check($3).first || table->type($3) != ExpI::RecordT) {
-                                error(@3, "no such record: " + $3);
-                                YYERROR;
-                        }
+                        table->store($2, ExpT{ RecordT{ $4, true } });
                         $$ = new Empty;
                         prev->link($$);
                         prev = $$;
                 }
         | ID DOT ID ASSIGN Exp {
-                        if (!table->check($1).first || table->type($1) != ExpI::ObjectT) {
+                        if (!table->check($1).first || table->type($1) != ExpI::RecordT || std::get<RecordT>(table->value($1)).second) {
                                 error(@1, "no such record: " + $1);
                                 YYERROR;
                         }
-                        auto record_type = table->record($1);
-                        if (record_type.empty()) {
-                                error(@1, "no such record type: " + record_type);
-                                YYERROR;
-                        }
-                        auto type = table->fieldtype(record_type, $3);
+                        auto type = table->fieldtype($1, $3);
                         if (type == ExpI::None) {
                                 error(@3, "no such field: " + $3);
                                 YYERROR;
@@ -369,13 +355,13 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         prev->link($$);
                         prev = $$;
                 }
-        | SUBROUTINE SubId Params RPAREN EOL Marker Block ENDSUBROUTINE EOL {
+        | SUBROUTINE SubId OptParL RPAREN EOL Marker Block ENDSUBROUTINE EOL {
                         table->endsub($3);
                         $$ = new Subroutine(new Decls(table, $2), $2, std::pair { $3, ExpI::None }, $7);
                         $6->link($$);
                         prev = $$;
                 }
-        | SUBROUTINE SubId Params RPAREN EOL Marker Block RETURN Exp EOL ENDSUBROUTINE EOL {
+        | SUBROUTINE SubId OptParL RPAREN EOL Marker Block RETURN Exp EOL ENDSUBROUTINE EOL {
                         table->endsub($3, $9->type());
                         if ($9->type() > ExpI::StringT) {
                                 error(@8, "unsupported return type for subroutine");
@@ -385,7 +371,7 @@ Stmnt   : EOL { $$ = new Empty; prev->link($$); prev = $$; }
                         $6->link($$);
                         prev = $$;
                 }
-        | SubCall Args RPAREN EOL {
+        | SubCall OptExpL RPAREN EOL {
                         if ($2.size() != table->types($1).first.size()) {
                                 error(@2, "wrong number of arguments for call to subroutine: " + $1);
                                 YYERROR;
@@ -469,9 +455,12 @@ Field   : ID TYPESPEC ID EOL {
                 }
         ;
 
-Params  : Params COMMA Param { $$ = $1; $$.push_back($3); }
+OptParL : %empty { $$ = {}; }
+        | ParList { $$ = $1; }
+        ;
+
+ParList : ParList COMMA Param { $$ = $1; $$.push_back($3); }
         | Param { $$.push_back($1); }
-        | %empty { $$ = {}; }
         ;
 
 Param   : ID TYPESPEC ID {
@@ -497,16 +486,18 @@ SubCall : SUBID {
                 }
         ;
 
-Args    : %empty { $$ = {}; }
-        | Exp { $$.push_back($1); }
-        | Args COMMA Exp { $$ = $1; $$.push_back($3); }
+OptExpL : %empty { $$ = {}; }
+        | ExpList { $$ = $1; }
         ;
 
-Array2  : %empty { $$ = {}; }
-        | Exp { $$.push_back($1); }
+ExpList : Exp { $$.push_back($1); }
+        | ExpList COMMA Exp { $$ = $1; $$.push_back($3); }
+        ;
+
+Array2  : Exp { $$.push_back($1); }
         | Array2 COMMA Exp { $$ = $1; $$.push_back($3); }
-        | LBRAK Args RBRAK { $$.push_back($2); }
-        | Array2 COMMA LBRAK Args RBRAK { $$ = $1; $$.push_back($4); }
+        | LBRAK ExpList RBRAK { $$.push_back($2); }
+        | Array2 COMMA LBRAK ExpList RBRAK { $$ = $1; $$.push_back($4); }
         ;
 
 BoolExp : Exp {
@@ -537,21 +528,16 @@ Exp     : STRING { $$ = new Value($1); }
                         }
                 }
         | ID DOT ID {
-                        if (!table->check($1).first || table->type($1) != ExpI::ObjectT) {
+                        if (!table->check($1).first || table->type($1) != ExpI::RecordT || std::get<RecordT>(table->value($1)).second) {
                                 error(@1, "no such record: " + $1);
                                 YYERROR;
                         }
-                        auto record_type = table->record($1);
-                        if (record_type.empty()) {
-                                error(@1, "no such record type: " + record_type);
-                                YYERROR;
-                        }
-                        auto type = table->fieldtype(record_type, $3);
+                        auto type = table->fieldtype($1, $3);
                         if (type == ExpI::None) {
                                 error(@3, "no such field: " + $3);
                                 YYERROR;
                         }
-                        $$ = new Variable(table->fieldtype(record_type, $3), $1 + '.' + $3);
+                        $$ = new Variable(table->fieldtype($1, $3), $1 + '.' + $3);
                 }
         | ID LBRAK Exp RBRAK { $$ = new Element($1, $3, std::get<ExpI>(std::get<Array2T>(table->value($1)).at(0))); }
         | ID LBRAK Exp RBRAK LBRAK Exp RBRAK { $$ = new Element2($1, $3, $6, std::get<ArrayT>(std::get<Array2T>(table->value($1)).at(0)).at(0)); }
@@ -561,10 +547,10 @@ Exp     : STRING { $$ = new Value($1); }
         | Exp DIVIDE Exp { VALID_OP($1, $3, Operator::divide, @$); if ($3->isConstant() && (std::get<RealT>($3->apply()) == 0.0)) { error(@$, "division by zero"); YYERROR; } $$ = new ExpressionOp($1, $3, Operator::divide); }
         | Exp DIV Exp { VALID_OP($1, $3, Operator::DIV, @$); if ($3->isConstant() && (std::get<IntT>($3->apply()) == 0)) { error(@$, "division by zero"); YYERROR; } $$ = new ExpressionOp($1, $3, Operator::DIV); }
         | Exp MOD Exp { VALID_OP($1, $3, Operator::MOD, @$); if ($3->isConstant() && (std::get<IntT>($3->apply()) == 0)) { error(@$, "division by zero"); YYERROR; } $$ = new ExpressionOp($1, $3, Operator::MOD); }
-        | MINUS Exp %prec UMINUS { VALID_OP($2, $2, Operator::negative, @$); $$ = new ExpressionOp($2, $2, Operator::negative); }
+        | MINUS Exp %prec UMINUS { VALID_OP($2, $2, Operator::negative, @$); $$ = new ExpressionOp($2, nullptr, Operator::negative); }
         | Exp OR Exp { VALID_OP($1, $3, Operator::OR, @$); $$ = new ExpressionOp($1, $3, Operator::OR); }
         | Exp AND Exp { VALID_OP($1, $3, Operator::AND, @$); $$ = new ExpressionOp($1, $3, Operator::AND); }
-        | NOT Exp { VALID_OP($2, $2, Operator::NOT, @$); $$ = new ExpressionOp($2, $2, Operator::NOT); }
+        | NOT Exp { VALID_OP($2, $2, Operator::NOT, @$); $$ = new ExpressionOp($2, nullptr, Operator::NOT); }
         | Exp EQ Exp { VALID_OP($1, $3, Operator::equal, @$); $$ = new ExpressionOp($1, $3, Operator::equal); }
         | Exp NE Exp { VALID_OP($1, $3, Operator::not_equal, @$); $$ = new ExpressionOp($1, $3, Operator::not_equal); }
         | Exp LT Exp { VALID_OP($1, $3, Operator::less_than, @$); $$ = new ExpressionOp($1, $3, Operator::less_than); }
@@ -573,7 +559,7 @@ Exp     : STRING { $$ = new Value($1); }
         | Exp GT Exp { VALID_OP($1, $3, Operator::greater_than, @$); $$ = new ExpressionOp($1, $3, Operator::greater_than); }
         | LPAREN Exp RPAREN { $$ = $2; }
         | USERINPUT { $$ = new UserInput(); }
-        | SubCall Args RPAREN {
+        | SubCall OptExpL RPAREN {
                         if ($2.size() != table->types($1).first.size()) {
                                 error(@2, "wrong number of arguments for call to subroutine: " + $1);
                                 YYERROR;
