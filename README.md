@@ -78,6 +78,8 @@ Windows needs Internet Information Services (IIS) Manager to be enabled and set 
 
 Note that inputs to the running program have to be entered into the text field bottom-right **before** the program is run, these being separated by commas. Also the user is prompted to clear the output window when it is full. These are the only significant differences to running the Javascript in a console window.
 
+![Screenshot](https://raw.githubusercontent.com/cpp-tutor/pseudocode-compiler/main/screenshot.png)
+
 ## License
 
 This software is released under the highly permissive MIT License. If you do modify or improve parts of this software, especially the web front-end, I hope you would want to share your efforts, but this is not a requirement.

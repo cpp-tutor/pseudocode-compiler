@@ -12,6 +12,9 @@ public:
         return right = next;
     }
     virtual void emit() = 0;
+    static void setOutput(std::ostream *os) {
+        Output::out = os;
+    }
 protected:
     Tree *left{ nullptr }, *right{ nullptr };
     class Indenter {
@@ -25,7 +28,18 @@ protected:
         friend inline std::ostream& operator<<(std::ostream&, const Indenter&);
     };
     inline static Indenter indent{};
-    inline static std::ostream& output = std::cout;
+    class Output {
+        inline static std::ostream *out = nullptr;
+        friend void Tree::setOutput(std::ostream  *os);
+    public:
+        Output() = default;
+        Output(std::ostream *os) { out = os; }
+        template<typename T>
+        std::ostream& operator<<(const T& v) {
+            return *out << v;
+        }
+    };
+    inline static Output output{};
 public:
     friend inline std::ostream& operator<<(std::ostream&, const Tree::Indenter&);
 };

@@ -120,7 +120,6 @@ int main(const int argc, const char *argv[]) {
         }
     }
     if (infile && *infile) {
-        std::cin.rdbuf(infile->rdbuf());
         if (args.size() == 1) {
             std::string outfilename{ args.front() };
             outfile = new std::ofstream{ outfilename.replace(outfilename.find('.'), std::string::npos, ".js") };
@@ -128,23 +127,26 @@ int main(const int argc, const char *argv[]) {
         else if (args.size() == 2) {
             outfile = new std::ofstream{ args.back() };
         }
-        if (outfile && *outfile) {
-            std::cout.rdbuf(outfile->rdbuf());
-        }
         else if (!cgi_program) {
             std::cerr << "Error: could not open file for writing: " << args.back() << '\n';
             return returncode;
         }
     }
-    yy::Lexer scanner{};
+    yy::Lexer scanner{ (infile && *infile) ? infile : &std::cin, &std::cerr };
     Symbol table{};
     Decls start{ &table };
     yy::Parser parser{ &scanner, &table, &start, &error_stream };
+    Tree::setOutput((outfile && *outfile) ? outfile : &std::cout);
 
     try {
         if (!parser.parse()) {
             if (support_nodejs) {
-                std::cout << support_nodejs_code;
+                if (outfile && *outfile) {
+                    *outfile << support_nodejs_code;
+                }
+                else {
+                    std::cout << support_nodejs_code;
+                }
             }
             start.emit();
             returncode = 0;
@@ -169,5 +171,7 @@ int main(const int argc, const char *argv[]) {
             std::cerr << error_stream.str();
         }
     }
+    delete infile;
+    delete outfile;
     return returncode;
 }
