@@ -6,7 +6,7 @@ A utility and CGI program which translates AQA's GCSE pseudocode specification (
 
 Prerequisites:
 
-* Visual Studio 2019 (or 2022) with C++ compiler supporting `/std:c++20`
+* Visual Studio 2019 or 2022 with C++ compiler supporting `/std:c++20`
 
 * Both `win_flex.exe` and `win_bison.exe` from https://github.com/lexxmark/winflexbison
 
@@ -78,7 +78,7 @@ Windows needs Internet Information Services (IIS) Manager to be enabled and set 
 
 Note that inputs to the running program have to be entered into the text field bottom-right **before** the program is run, these being separated by commas. Also the user is prompted to clear the output window when it is full. These are the only significant differences to running the Javascript in a console window.
 
-![Screenshot](https://raw.githubusercontent.com/cpp-tutor/pseudocode-compiler/main/screenshot.png)
+![Screenshot of webapp in Microsoft Edge under Windows](/../screenshots/screenshot.png?raw=true "Webapp-using CGI program under Windows")
 
 ## License
 
@@ -98,7 +98,6 @@ Note that the only deliberate changes from the specification are:
 
 * `SUBROUTINE` parameters in a definition needing to be followed by `: Type` (as for `RECORD` fields), but not where the `SUBROUTINE` is called with arguments.
 
-* Initiializing a variable from a `RECORD` type needs curly braces `{` and `}` and not plain parentheses, this is due to the earlier design of the compiler which means it cannot otherwise distinguish from a `SUBROUTINE` call (with the name of the `RECORD`)
+* Initializing a variable from a `RECORD` type needs curly braces `{` and `}` and not plain parentheses, this is due to the earlier design of the compiler which means it cannot otherwise distinguish from a `SUBROUTINE` call (with the name of the `RECORD`)
 
- 
-**Update:** Compound assignment of variables from `RECORD`s (in addition to field assignment) now appears in the specification above, as does `OUTPUT`ing of a comma-separated list of `StringExp`s. Support for both of these is provided.
+**Update:** Compound assignment of variables from `RECORD`s (in addition to field assignment) now appears in the specification above, as does `OUTPUT`ting of a comma-separated list of `StringExp`s. Support for both of these is provided.
