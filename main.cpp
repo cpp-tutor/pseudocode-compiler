@@ -100,7 +100,7 @@ int main(const int argc, const char *argv[]) {
                 std::cerr << "written to the console (after ^Z/^D).\n";
                 return returncode;
             case 1:
-                std::cerr << "Version 0.30 [release] 2022/03/03\n";
+                std::cerr << "Version 1.00 [release] 2023/01/31\n";
                 return returncode;
             case 2:
                 support_nodejs = true;
