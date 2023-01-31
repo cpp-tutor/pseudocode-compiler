@@ -1,8 +1,14 @@
 # pseudocode-compiler
 
-A utility and CGI program which translates AQA's GCSE pseudocode specification (course code 8525) to Javascript.
+A utility and CGI program which translates AQA's GCSE pseudocode specification (course code 8525) to Javascript, ready for execution in a browser of by Node.JS/Spidermonkey.
 
 ## Building under Windows
+
+Note:
+
+Both 32 and 64-bit executables for Windows are available from the releases page:
+
+https://github.com/cpp-tutor/pseudocode-compiler/releases
 
 Prerequisites:
 
@@ -100,4 +106,8 @@ Note that the only deliberate changes from the specification are:
 
 * Initializing a variable from a `RECORD` type needs curly braces `{` and `}` and not plain parentheses, this is due to the earlier design of the compiler which means it cannot otherwise distinguish from a `SUBROUTINE` call (with the name of the `RECORD`)
 
-**Update:** Compound assignment of variables from `RECORD`s (in addition to field assignment) now appears in the specification above, as does `OUTPUT`ting of a comma-separated list of `StringExp`s. Support for both of these is provided.
+**Updates:**
+
+* Compound assignment of variables from `RECORD`s (in addition to field assignment) now appears in the specification above, as does `OUTPUT`ting of a comma-separated list of `StringExp`s. Support for both of these is provided.
+
+* Version 1.00 released! Other release downloads have been removed as they contained bugs, but sources for these are still available via tags.
