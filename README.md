@@ -1,6 +1,6 @@
 # pseudocode-compiler
 
-A utility and CGI program which translates AQA's GCSE pseudocode specification (course code 8525) to Javascript, ready for execution in a browser of by Node.JS/Spidermonkey.
+A utility and CGI program which translates AQA's GCSE pseudocode specification (course code 8525) to Javascript, ready for execution in a browser or by Node.JS/Spidermonkey.
 
 ## Building under Windows
 
