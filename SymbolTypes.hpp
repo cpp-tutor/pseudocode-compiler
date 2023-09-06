@@ -3,9 +3,12 @@
 
 class String : public std::string {
 public:
-    template<typename... Args>
-    String(Args&&... args)
-        : std::string(std::forward<Args>(args)...) {}
+    String()
+        : std::string() {}
+    String(const char *start, const char *end)
+        : std::string(start, end) {}
+    String(const std::string& str)
+        : std::string(str) {}
 };
 
 enum class ExpI { None, BoolT, IntT, RealT, StringT, ArrayT, Array2T, RecordT, SubroutineT };
