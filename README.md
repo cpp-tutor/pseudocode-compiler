@@ -2,6 +2,15 @@
 
 A utility and CGI program which translates AQA's GCSE pseudocode specification (course code 8525) to Javascript, ready for execution in a browser or by Node.JS/Spidermonkey.
 
+I have written a series of articles about this project, which can be found at https://learnmoderncpp.com:
+
+* [1. Setting the scene](http://learnmoderncpp.com/2021/10/29/writing-a-pseudocode-compiler-1-setting-the-scene/)
+* [2. Abstract syntax tree](http://learnmoderncpp.com/2021/10/30/writing-a-pseudocode-compiler-2-abstract-syntax-tree/)
+* [3. Generating a scanner](http://learnmoderncpp.com/2021/11/06/writing-a-pseudocode-compiler-2-generating-a-scanner/)
+* [4. Generating a parser](http://learnmoderncpp.com/2021/11/13/writing-a-pseudocode-compiler-4-generating-a-parser/)
+* [5. Rules, statements and expressions](http://learnmoderncpp.com/2021/11/27/writing-a-pseudocode-compiler-5-rules-statements-and-expressions/)
+* [6. Compiler driver frontend](http://learnmoderncpp.com/2021/12/30/writing-a-pseudocode-compiler-6-front-end/)
+
 ## Building under Windows
 
 Note:
